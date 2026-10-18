@@ -1,38 +1,97 @@
-# PageScore
+# PageScore: AI Narrative Dramaturg & Neural Film-Score Conductor
 
-A browser-native film-score conductor for reading. Load a story, and a procedural synthesizer composes a multi-layered cinematic score that morphs in real time as you move between passages. No audio files. No per-scroll API calls.
+**PageScore** is an AI-first creative system that turns any piece of reading into an adaptive, cinematic film score. 
 
-## How it works
+Rather than treating AI as an auxiliary chatbot or decorative feature, **the AI is the composer and director at the center of the entire product**. An LLM reads raw prose, analyzes narrative tension arcs, segments text into emotional movements, and programmatically writes complete multi-voice synthesizer compositions that morph in real time as the reader scrolls.
 
-1. You paste a story into the compose modal. The text is sent once to Claude (via Anthropic's API), which segments it into 3-6 emotional scenes and designs a complete Tone.js synthesizer patch for each: key, chord progression, BPM, oscillator waveform, filter cutoff, reverb, arpeggio pattern, bass rhythm, and procedural foley (rain, wind, vinyl crackle, deep rumble).
+Zero audio files. Zero pre-recorded samples. 100% procedural Web Audio driven by large language model dramaturgy.
 
-2. The browser's Web Audio graph reads those patches and plays everything live via Tone.js: a pad synth, a ping-pong-delayed arp lead, a bass synth, and noise-based ambient layers. An `IntersectionObserver` watches your scroll position and triggers patch morphs at scene boundaries, crossfading BPM, filter frequency, reverb wet/decay, foley layers, and waveform over two seconds.
+---
 
-3. Three preset stories ship with hand-authored patches, so the demo works with no API key.
+## The AI Architecture: How Claude Scores Literature
 
-## Setup
+```
+                  ┌────────────────────────────────────────┐
+                  │          Raw Narrative Text            │
+                  │ (Literature, Chapter, Creative Writing)│
+                  └───────────────────┬────────────────────┘
+                                      │
+                                      ▼
+                  ┌────────────────────────────────────────┐
+                  │       Anthropic Claude (Director)      │
+                  │   • Narrative Dramaturgy & Arc Parsing │
+                  │   • Emotional Turning Point Detection  │
+                  │   • Music Theory: Keys, Scales, Chords │
+                  │   • Synthesizer Patch Programming      │
+                  └───────────────────┬────────────────────┘
+                                      │
+                                      ▼
+                  ┌────────────────────────────────────────┐
+                  │       Validated Score JSON Schema      │
+                  │  4-Part Chords · Basslines · Arps ·    │
+                  │  BPM · Filters · Foley · Tension Scores│
+                  └───────────────────┬────────────────────┘
+                                      │
+                                      ▼
+                  ┌────────────────────────────────────────┐
+                  │      Tone.js Procedural Synthesis      │
+                  │  • PolySynth (Pads) • MonoSynth (Bass) │
+                  │  • Ping-Pong Arp   • Pink Noise Foley  │
+                  │  • Real-Time Focal Scroll Morphing     │
+                  └────────────────────────────────────────┘
+```
+
+### Why AI is Essential to the Build
+Traditional audio apps rely on static loops or generic genre tags. PageScore cannot function without advanced semantic reasoning:
+1. **Dramatic Arc Parsing:** Claude identifies subtle psychological turning points in literature (e.g. rising dread, sudden revelations, or quiet nostalgia) and maps them to numerical tension scores (0–100).
+2. **Music Theory Voicing:** The AI acts as a classical film composer, selecting modal scales (Dorian, Lydian, Harmonic Minor), voicing four-part chords across specific octaves (C2–C5), and writing matching basslines and arpeggios that adhere to harmonic rules.
+3. **Synthesizer Parameterization:** Claude directly configures the physical synthesizer architecture: filter cutoffs (180–4500 Hz), reverb decay, oscillator waveforms (sine, triangle, fatsawtooth), and procedural atmospheric foley (rain, wind, vintage vinyl crackle, subterranean rumble).
+4. **Zero-Latency Upfront Generation:** The AI analyzes the text once upfront to produce a complete movement score. Once generated, the browser executes the performance client-side, eliminating API lag during active reading.
+
+---
+
+## Features
+
+- **Autonomous "Listen & Read" Mode:** Press `D` or click *Listen & Read* to let the neural conductor autonomously guide your reading pace through chapters while morphing audio stages.
+- **Procedural Tone.js Engine:** Zero MP3s. All audio is synthesized directly on your device via the Web Audio API with a 60 FPS live oscilloscope.
+- **Tactile Sound Console:** Interactive controls for master volume (calibrated with a wide logarithmic decibel curve), filter cutoff overrides, BPM modulation, and ambient foley switches.
+- **Editorial Reading Typography:** Elegant editorial layout with sticky Roman numeral navigation rails, hairline reading progress ribbons, and dark cinematic themes.
+- **Pre-Scored Master Stories:** Ships with pre-compiled master scores (*The North Sea Station*, *The Cartographer's Archive*, and Arthur Conan Doyle's *Sherlock Holmes*), alongside custom text scoring.
+
+---
+
+## Quick Start
 
 ```bash
-git clone <repo>
+# 1. Clone repository
+git clone https://github.com/benjamin-nweke/pagescore.git
 cd pagescore
+
+# 2. Install dependencies
 npm install
+
+# 3. Configure Anthropic API key
 cp .env.local.example .env.local
-# Add your Anthropic API key to .env.local
+# Add your ANTHROPIC_API_KEY in .env.local
+
+# 4. Run local development server
 npm run dev
 ```
 
-Then open `http://localhost:3000`. Click "Start audio and auto-scroll demo" to hear and watch the full preset story hands-free.
+Open `http://localhost:3000` in your browser. Click **"Score Your Story"** to score your own custom text, or press **Space** to listen to the pre-scored literature immediately.
 
-## Adding your Anthropic API key
+---
 
-Either set `ANTHROPIC_API_KEY` in `.env.local`, or enter it directly in the "Score custom text" modal (it's stored only in your browser's `localStorage` and sent only to this app's own `/api/compose` endpoint).
+## Tech Stack
 
-The compose route uses Anthropic Claude (`claude-sonnet-4-6` with active fallback). You can use any Claude model that supports long-form structured output.
+- **Framework:** Next.js 14 (App Router, Server Components, API Routes)
+- **AI Engine:** Anthropic Claude (`claude-sonnet-4-6` with active fallback pipeline)
+- **Audio Synthesis:** Tone.js + Web Audio API (Analysers, Limiters, Filters, Convolution Reverbs)
+- **Styling & Motion:** Tailwind CSS + Vanilla CSS Tokens + Framer Motion Spring Physics
+- **Typography:** Google Fonts (`Lora` editorial serif + `Inter` UI + `JetBrains Mono`)
 
-## Limits
+---
 
-- Custom text: 400 to 20,000 characters, up to 60 paragraphs.
-- The LLM call can take 15-45 seconds for longer texts.
-- Audio requires a user gesture to start (browser policy). The demo button handles this.
-- Tone.js runs entirely in the browser. There is no audio processing on the server.
-- The app does not fall back to keyword/sentiment matching if the API call fails. If there's no key, the presets still play.
+## License
+
+MIT &bull; Created by [Benjamin Nweke](https://github.com/benjamin-nweke)
